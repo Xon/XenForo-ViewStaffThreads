@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="SVViewStaffThreads" title="SV: View Staff Threads" version_string="1.0.0" version_id="10000" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class" execute_order="10" callback_class="SV_ViewStaffThreads_Listener" callback_method="load_class" active="1" hint="XenForo_Model_Thread" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="viewStaff" permission_type="flag" default_value="unset" interface_group_id="forumPermissions" display_order="0"/>
+      <permission permission_group_id="forum" permission_id="viewStickies" permission_type="flag" default_value="unset" interface_group_id="forumPermissions" display_order="0"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="permission_forum_viewStaff" version_id="10000" version_string="1.0.0"><![CDATA[View threads by staff]]></phrase>
+    <phrase title="permission_forum_viewStickies" version_id="10000" version_string="1.0.0"><![CDATA[View sticky threads]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
