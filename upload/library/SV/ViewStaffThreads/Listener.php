@@ -7,8 +7,8 @@ class SV_ViewStaffThreads_Listener
         switch ($class)
         {
             case 'XenForo_Model_Thread':
-            $extend[] = 'SV_ViewStaffThreads_XenForo_Model_Thread';
-            break;
+                $extend[] = 'SV_ViewStaffThreads_XenForo_Model_Thread';
+                break;
         }
     }
 }
