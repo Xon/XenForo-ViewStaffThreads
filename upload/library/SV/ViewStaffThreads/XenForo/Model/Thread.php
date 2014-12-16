@@ -35,12 +35,8 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
                                     SELECT user.is_staff 
                                     From xf_user AS user
                                     WHERE user_id = ?', $thread['thread_user_id']);
-                    if (isset($users) && isset($users[0]))
-                        $is_staff = $users[0][0] != 0;
-                    else
-                        $is_staff = false;
                 
-                    $this->_thread_view_cache[$thread['thread_id']] = $is_staff;
+                    $this->_thread_view_cache[$thread['thread_id']] = isset($users) && isset($users[0]) && isset($users[0][0]) && $users[0][0] != 0; 
                 }
             
                 return $this->_thread_view_cache[$thread['thread_id']];
