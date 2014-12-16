@@ -2,13 +2,15 @@
 
 class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_XenForo_Model_Thread
 {
+    private $_thread_view_cache = array();
+
+
     public function canViewThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
     {
         $this->standardizeViewingUserReferenceForNode($thread['node_id'], $viewingUser, $nodePermissions);
-
         $canViewThread =  parent::canViewThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
         if ($canViewThread)
-        return true;
+            return true;
 
         // ensure the forum/node can actually be seen
         if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view'))
@@ -16,13 +18,34 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
             return false;
         }
 
-        if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStaff') && isset($thread['is_staff']) && $thread['is_staff'])
+        if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStickies') && $thread['sticky'])
         {
             return true;
         }
-
-        if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStickies') && $thread['sticky'])
+        
+        if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStaff') && isset($thread['is_staff']) && $thread['is_staff'])
         {
+            // search results project the current post user into $thread while displaying thread results use the first post.
+            if (isset($thread['thread_user_id']) && $thread['thread_user_id'] != $thread['user_id'])
+            {
+                // ensure we only do 1 query per thread, even if there are multipule matching posts
+                if (!isset($this->_thread_view_cache[$thread['thread_id']]))                
+                {       
+                    $users = $this->_getDb()->fetchCol('
+                                    SELECT user.is_staff 
+                                    From xf_user AS user
+                                    WHERE user_id = ?', $thread['thread_user_id']);
+                    if (isset($users) && isset($users[0]))
+                        $is_staff = $users[0][0] != 0;
+                    else
+                        $is_staff = false;
+                
+                    $this->_thread_view_cache[$thread['thread_id']] = $is_staff;
+                }
+            
+                return $this->_thread_view_cache[$thread['thread_id']];
+            }
+        
             return true;
         }
 
@@ -51,11 +74,11 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
     }   
 
     public function prepareThreadFetchOptions(array $fetchOptions)
-    {   
-        $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);        
+    {
+        $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);     
         if (isset($fetchOptions['join']))
         {            
-            if ($fetchOptions['join'] & self::FETCH_AVATAR)
+            if ($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR)
             {
                 $threadFetchOptions['selectFields'] .= ', user.is_staff';
             }
@@ -67,7 +90,6 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
             LEFT JOIN xf_user AS user ON
             (user.user_id = thread.user_id)';
         }
-
         return $threadFetchOptions;
     }
 
@@ -86,7 +108,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         // thread starter
         if ($user_id)
         {
-            $parts = [];
+            $parts = array();
             if (isset($conditions['viewStickies']) && $conditions['viewStickies'])
             {
                 $parts[] = '( thread.sticky = 1 )';
