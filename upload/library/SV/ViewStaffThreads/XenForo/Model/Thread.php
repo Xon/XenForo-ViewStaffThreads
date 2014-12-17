@@ -2,9 +2,6 @@
 
 class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_XenForo_Model_Thread
 {
-    private $_thread_view_cache = array();
-
-
     public function canViewThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
     {
         $this->standardizeViewingUserReferenceForNode($thread['node_id'], $viewingUser, $nodePermissions);
@@ -23,25 +20,17 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
             return true;
         }
         
+        if (isset($thread['thread_user_id']))
+        {
+            $thread['user_id'] =  $thread['thread_user_id'];
+        }
+        if (isset($thread['thread_is_staff']))
+        {
+            $thread['is_staff'] =  $thread['thread_is_staff'];
+        }
+        
         if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStaff') && isset($thread['is_staff']) && $thread['is_staff'])
         {
-            // search results project the current post user into $thread while displaying thread results use the first post.
-            if (isset($thread['thread_user_id']) && $thread['thread_user_id'] != $thread['user_id'])
-            {
-                // ensure we only do 1 query per thread, even if there are multipule matching posts
-                if (!isset($this->_thread_view_cache[$thread['thread_id']]))                
-                {       
-                    $users = $this->_getDb()->fetchCol('
-                                    SELECT user.is_staff 
-                                    From xf_user AS user
-                                    WHERE user_id = ?', $thread['thread_user_id']);
-                
-                    $this->_thread_view_cache[$thread['thread_id']] = isset($users) && isset($users[0]) && isset($users[0][0]) && $users[0][0] != 0; 
-                }
-            
-                return $this->_thread_view_cache[$thread['thread_id']];
-            }
-        
             return true;
         }
 
@@ -71,7 +60,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
 
     public function prepareThreadFetchOptions(array $fetchOptions)
     {
-        $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);     
+        $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);
         if (isset($fetchOptions['join']))
         {            
             if ($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR)
