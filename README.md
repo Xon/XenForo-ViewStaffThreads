@@ -1,4 +1,4 @@
-Xenforo-SVViewStaffThreads
+Xenforo-ViewStaffThreads
 ======================
 
 Allows Stickies or Staff threads to be visible in a forum without "View threads by others".

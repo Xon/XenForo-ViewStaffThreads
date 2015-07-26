@@ -5,9 +5,11 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
     public function canViewThread(array $thread, array $forum, &$errorPhraseKey = '', array $nodePermissions = null, array $viewingUser = null)
     {
         $this->standardizeViewingUserReferenceForNode($thread['node_id'], $viewingUser, $nodePermissions);
-        $canViewThread =  parent::canViewThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
+        $canViewThread = parent::canViewThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
         if ($canViewThread)
+        {
             return true;
+        }
 
         // ensure the forum/node can actually be seen
         if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view'))
@@ -19,7 +21,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         {
             return true;
         }
-        
+
         if (isset($thread['thread_user_id']))
         {
             $thread['user_id'] =  $thread['thread_user_id'];
@@ -28,7 +30,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         {
             $thread['is_staff'] =  $thread['thread_is_staff'];
         }
-        
+
         if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStaff') && isset($thread['is_staff']) && $thread['is_staff'])
         {
             return true;
@@ -56,13 +58,13 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         }
 
         return $conditions;
-    }   
+    }
 
     public function prepareThreadFetchOptions(array $fetchOptions)
     {
         $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);
         if (isset($fetchOptions['join']))
-        {            
+        {
             if ($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR)
             {
                 $threadFetchOptions['selectFields'] .= ', user.is_staff';
