@@ -2,10 +2,10 @@
 
 class SV_ViewStaffThreads_Listener
 {
-    const AddonNameSpace = 'SV_ViewStaffThreads';
+    const AddonNameSpace = 'SV_ViewStaffThreads_';
 
     public static function load_class($class, array &$extend)
     {
-        $extend[] = self::AddonNameSpace.'_'.$class;
+        $extend[] = self::AddonNameSpace.$class;
     }
 }
