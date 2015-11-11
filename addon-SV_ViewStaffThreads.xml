@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SVViewStaffThreads" title="View Staff Threads" version_string="1.0.4a" version_id="1000401" url="https://xenforo.com/community/resources/view-staff-threads.3748/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="SV_ViewStaffThreads" title="View Staff Threads" version_string="1.0.4a" version_id="1000401" url="https://xenforo.com/community/resources/view-staff-threads.3748/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
