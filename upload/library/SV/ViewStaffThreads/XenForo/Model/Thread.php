@@ -66,7 +66,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         {
             $fetchOptions['join'] = XenForo_Model_Thread::FETCH_AVATAR;
         }
-        else if (empty($fetchOptions['join'] & XenForo_Model_Thread::FETCH_USER) && empty($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR))
+        else if (!($fetchOptions['join'] & XenForo_Model_Thread::FETCH_USER) && !($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR))
         {
             $fetchOptions['join'] |= XenForo_Model_Thread::FETCH_AVATAR;
         }
