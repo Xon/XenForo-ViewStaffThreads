@@ -62,21 +62,19 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
 
     public function prepareThreadFetchOptions(array $fetchOptions)
     {
+        if (empty($fetchOptions['join']))
+        {
+            $fetchOptions['join'] = XenForo_Model_Thread::FETCH_AVATAR;
+        }
+        else if (empty($fetchOptions['join'] & XenForo_Model_Thread::FETCH_USER) && empty($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR))
+        {
+            $fetchOptions['join'] |= XenForo_Model_Thread::FETCH_AVATAR;
+        }
+
         $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);
-        if (isset($fetchOptions['join']))
-        {
-            if ($fetchOptions['join'] & XenForo_Model_Thread::FETCH_AVATAR)
-            {
-                $threadFetchOptions['selectFields'] .= ', user.is_staff';
-            }
-        }
-        else
-        {
-            $threadFetchOptions['selectFields'] .= ', user.is_staff';
-            $threadFetchOptions['joinTables'] .= '
-            LEFT JOIN xf_user AS user ON
-            (user.user_id = thread.user_id)';
-        }
+
+        $threadFetchOptions['selectFields'] .= ', user.is_staff';
+
         return $threadFetchOptions;
     }
 
