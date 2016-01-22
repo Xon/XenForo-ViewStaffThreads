@@ -60,8 +60,26 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         return $conditions;
     }
 
+    static $widgetSupport = null;
+
     public function prepareThreadFetchOptions(array $fetchOptions)
     {
+        // widget render support since it re-uses 'user' for the last post rather than the first post, rather than last_post_user
+        if(self::$widgetSupport === null)
+        {
+            self::$widgetSupport = class_exists('WidgetFramework_XenForo_Model_Thread', false);
+        }
+        if(self::$widgetSupport && isset($fetchOptions[WidgetFramework_XenForo_Model_Thread::FETCH_OPTIONS_LAST_POST_JOIN]))
+        {
+            $threadFetchOptions = parent::prepareThreadFetchOptions($fetchOptions);
+            $threadFetchOptions['selectFields'] .= ',
+                sv_first_user.is_staff';
+            $threadFetchOptions['joinTables'] .= '
+                LEFT JOIN xf_user AS sv_first_user ON
+                    (sv_first_user.user_id = thread.user_id)';
+            return $threadFetchOptions;
+        }
+
         if (empty($fetchOptions['join']))
         {
             $fetchOptions['join'] = XenForo_Model_Thread::FETCH_AVATAR;
