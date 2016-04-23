@@ -96,49 +96,41 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         return $threadFetchOptions;
     }
 
+    protected $svstaff_conditions = null;
+
     public function prepareThreadConditions(array $conditions, array &$fetchOptions)
     {
-        $sqlConditions = array();
-        $db = $this->_getDb();
-        $user_id = 0;
-        if (isset($conditions['user_id']))
-        {
-            $user_id = $conditions['user_id'];
-            unset($conditions['user_id']);
-        }
+        $this->svstaff_conditions = $conditions;
         $sql = parent::prepareThreadConditions($conditions, $fetchOptions);
-
-        // thread starter
-        if ($user_id)
-        {
-            $parts = array();
-            if (isset($conditions['viewStickies']) && $conditions['viewStickies'])
-            {
-                $parts[] = '( thread.sticky = 1 )';
-            }
-            if (isset($conditions['viewStaff']) && $conditions['viewStaff'])
-            {
-                $parts[] = '( user.is_staff = 1 )';
-            }
-
-            $OrStatement= '';
-            if ($parts)
-                $OrStatement = ' OR '. implode(' OR ', $parts);
-
-            if (is_array($user_id))
-            {
-                $sqlConditions[] = '( thread.user_id IN (' . $db->quote($user_id) . ')' . $OrStatement. ' )';
-            }
-            else
-            {
-                $sqlConditions[] = '( thread.user_id = ' . $db->quote($user_id) . $OrStatement. ' )';
-            }
-        }
-        if ($sqlConditions)
-        {
-            $sql .= ' AND ' . $this->getConditionsForClause($sqlConditions);
-        }
-
+        $this->svstaff_conditions = null;
         return $sql;
+    }
+
+    public function getConditionsForClause(array $sqlConditions)
+    {
+        if ($this->svstaff_conditions !== null)
+        {
+            $conditions = $this->svstaff_conditions;
+            foreach($sqlConditions as &$sqlCondition)
+            {
+                if (strpos($sqlCondition, 'thread.user_id') !== false)
+                {
+                    $parts = array();
+                    if (!empty($conditions['sticky']) && !empty($conditions['viewStickies']))
+                    {
+                        $parts[] = 'thread.sticky = 1';
+                    }
+                    if (!empty($conditions['viewStaff']))
+                    {
+                        $parts[] = 'user.is_staff = 1';
+                    }
+                    if ($parts)
+                    {
+                        $sqlCondition = "({$sqlCondition} OR ". implode(' OR ', $parts) .')';
+                    }
+                }
+            }
+        }
+        return parent::getConditionsForClause($sqlConditions);
     }
 }
