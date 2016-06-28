@@ -12,7 +12,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         }
 
         // ensure the forum/node can actually be seen
-        if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view') || 
+        if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view') ||
             $this->isModerated($thread) ||
             $this->isDeleted($thread))
         {
@@ -115,9 +115,11 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         if ($this->svstaff_conditions !== null)
         {
             $conditions = $this->svstaff_conditions;
-            foreach($sqlConditions as &$sqlCondition)
+            for($i = count($sqlConditions) - 1; $i >=0; $i--)
             {
-                if (strpos($sqlCondition, 'thread.user_id') !== false)
+                $sqlCondition = $sqlConditions[$i];
+                if (strpos($sqlConditions[$i], 'thread.user_id') !== false &&
+                    strpos($sqlConditions[$i], 'thread.discussion_state = \'moderated\' AND thread.user_id = ') === false)
                 {
                     $parts = array();
                     if (!empty($conditions['sticky']) && !empty($conditions['viewStickies']))
@@ -130,8 +132,9 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
                     }
                     if ($parts)
                     {
-                        $sqlCondition = "({$sqlCondition} OR ". implode(' OR ', $parts) .')';
+                        $sqlConditions[$i] = "({$sqlCondition} OR (thread.discussion_state = 'visible' AND (". implode(' OR ', $parts) .')))';
                     }
+                    break;
                 }
             }
         }
