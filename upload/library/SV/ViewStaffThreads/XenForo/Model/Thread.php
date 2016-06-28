@@ -8,12 +8,15 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
         $canViewThread = parent::canViewThread($thread, $forum, $errorPhraseKey, $nodePermissions, $viewingUser);
         if ($canViewThread)
         {
-            return true;
+            return $canViewThread;
         }
 
         // ensure the forum/node can actually be seen
-        if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view'))
+        if (!XenForo_Permission::hasContentPermission($nodePermissions, 'view') || 
+            $this->isModerated($thread) ||
+            $this->isDeleted($thread))
         {
+            $errorPhraseKey = 'requested_thread_not_found';
             return false;
         }
 
@@ -36,6 +39,7 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
             return true;
         }
 
+        $errorPhraseKey = 'requested_thread_not_found';
         return false;
     }
 
