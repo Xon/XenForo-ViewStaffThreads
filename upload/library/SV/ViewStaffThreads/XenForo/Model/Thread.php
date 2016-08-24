@@ -16,12 +16,12 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
             $this->isModerated($thread) ||
             $this->isDeleted($thread))
         {
-            $errorPhraseKey = 'requested_thread_not_found';
             return false;
         }
 
         if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStickies') && $thread['sticky'])
         {
+            $errorPhraseKey = '';
             return true;
         }
 
@@ -36,10 +36,10 @@ class SV_ViewStaffThreads_XenForo_Model_Thread extends XFCP_SV_ViewStaffThreads_
 
         if (XenForo_Permission::hasContentPermission($nodePermissions, 'viewStaff') && isset($thread['is_staff']) && $thread['is_staff'])
         {
+            $errorPhraseKey = '';
             return true;
         }
 
-        $errorPhraseKey = 'requested_thread_not_found';
         return false;
     }
 
